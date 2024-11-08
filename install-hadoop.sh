@@ -10,23 +10,11 @@
 # daemon and NodeManager daemon.
 ######################################################
 
-# Define Hadoop name with version
-declare -r HADOOP_NAME="hadoop-3.2.4"
-
 # Get the directory of the script
-declare -r SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+declare SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Define Hadoop configuration template path (Will define operation mode in future)
-declare -r HADOOP_TEMPLATE_PATH="$SCRIPT_PATH/hadoop-template"
-
-# Define Hadoop home directory
-declare -r HADOOP_HOME_PATH="/opt/$HADOOP_NAME"
-
-# Define user download path
-declare -r DOWNLOAD_PATH="$HOME/Downloads"
-
-# Define SSH path
-declare -r SSH_PATH="$HOME/.ssh"
+# Source environment variables
+source "$SCRIPT_PATH/env-hadoop.sh"
 
 # Install Java if not already installed
 echo "Checking if Java is installed..."

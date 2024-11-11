@@ -6,6 +6,15 @@ declare SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Source environment variables
 source "$SCRIPT_PATH/env-hadoop.sh"
 
+# Ensure SSH daemon is running
+echo "Checking if SSH daemon is running..."
+if ! systemctl is-active "ssh"; then
+  echo "Starting SSH daemon..."
+  sudo systemctl start ssh
+  systemctl is-active "ssh"
+fi
+echo ""
+
 # Format Hadoop Distributed File System
 echo "Formatting Hadoop Distributed File System..."
 if ! hd-hdfs namenode -format -nonInteractive -force; then
@@ -16,18 +25,25 @@ fi
 # Start NameNode daemon and DataNode daemon
 # The hadoop daemon log output is written to the $HADOOP_LOG_DIR directory (defaults to $HADOOP_HOME/logs).
 # Browse the web interface for the NameNode; by default it is available at: NameNode - http://localhost:9870/
-echo "Starting NameNode daemon and DataNode daemon..."
-if ! hd-start-dfs; then
-  echo "Failed to start NameNode daemon and DataNode daemon."
+echo "Starting NameNode, secondary namenodes and DataNode daemon..."
+if ! hd-start-dfs ; then
+  echo "Failed to start NameNode, secondary namenodes and DataNode daemon."
+  hd-stop-dfs
   exit 1
 else
-    echo "Success! NameNode web interface: http://localhost:9870"
+  echo "Finished! NameNode available at http://localhost:9870/"
 fi
+echo ""
 
-# Make the HDFS directories required to execute MapReduce jobs:
-
-if ! hd-hdfs dfs -mkdir -p "$HD_HDFS_USER_PATH"; then
-  echo "Failed to create '$HD_HDFS_USER_PATH' directory."
+# Start ResourceManager daemon
+# The hadoop daemon log output is written to the $HADOOP_LOG_DIR directory (defaults to $HADOOP_HOME/logs).
+# Browse the web interface for the ResourceManager; by default it is available at: ResourceManager - http://localhost:8088/
+echo "Starting ResourceManager and nodemanagers daemon..."
+if ! hd-start-yarn ; then
+  echo "Failed to start ResourceManager and nodemanagers daemon."
+  hd-stop-yarn
   exit 1
+else
+  echo "Finished! ResourceManager available at http://localhost:8088/"
 fi
-
+echo ""

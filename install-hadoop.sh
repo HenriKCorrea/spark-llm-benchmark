@@ -19,9 +19,14 @@ source "$SCRIPT_PATH/env-hadoop.sh"
 # Install Java if not already installed
 echo "Checking if Java is installed..."
 if ! command -v java; then
-  sudo apt-get install openjdk-8-jre-headless
+  sudo apt-get install openjdk-8-jre-headless 
 fi
 echo ""
+
+echo "Checking if jps is installed (part of JDK, allows check java running process)..."
+if ! command -v jps; then
+  sudo apt-get install openjdk-8-jdk-headless
+fi
 
 # Ensure SSH client is installed
 echo "Checking if SSH client is installed..."
@@ -40,7 +45,9 @@ echo ""
 # Ensure SSH daemon is running
 echo "Checking if SSH daemon is running..."
 if ! systemctl is-active "ssh"; then
+  echo "Starting SSH daemon..."
   sudo systemctl start ssh
+  systemctl is-active "ssh"
 fi
 echo ""
 
@@ -64,21 +71,24 @@ echo ""
 # Delete previous Hadoop distribution
 echo "Deleting previous Hadoop distribution..."
 if [ -d "$HADOOP_HOME_PATH" ]; then
-  sudo rm -rf "$HADOOP_HOME_PATH"
+  rm -rf "$HADOOP_HOME_PATH"
 fi
 echo ""
 
 # Move Hadoop distribution to $(dirname $HADOOP_HOME_PATH) directory
 echo "Moving Hadoop distribution to '$(dirname $HADOOP_HOME_PATH)' directory..."
-sudo mv "$DOWNLOAD_PATH/$HADOOP_NAME" "$(dirname $HADOOP_HOME_PATH)"
+if ! mv "$DOWNLOAD_PATH/$HADOOP_NAME" "$(dirname $HADOOP_HOME_PATH)"; then
+  echo "Failed to deploy Hadoop distribution."
+  exit 1
+fi
 echo ""
-
-# Create symlink for Hadoop binaries
-# sudo ln -s "$HADOOP_HOME_PATH/bin/*" /usr/local/bin/
 
 # Copy Hadoop configuration files (YARN on Single Node)
 echo "Copy Hadoop configuration files (YARN on Single Node)..."
-sudo cp -r "$HADOOP_HOME_PATH/etc/hadoop" "$HADOOP_HOME_PATH/etc/hadoop.backup"
+if ! cp "$HADOOP_TEMPLATE_PATH/etc/hadoop/"*.xml "$HADOOP_HOME_PATH/etc/hadoop/"; then
+  echo "Failed to deploy Hadoop configuration files."
+  exit 1
+fi
 echo ""
 
 # Set environment variables for Hadoop configuration

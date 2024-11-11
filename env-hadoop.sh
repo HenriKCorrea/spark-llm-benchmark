@@ -4,7 +4,7 @@
 declare SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Define GIT project root path
-declare PROJECT_ROOT_PATH="$SCRIPT_PATH/.."
+declare PROJECT_ROOT_PATH="$SCRIPT_PATH"
 
 # Define Hadoop name with version
 declare HADOOP_NAME="hadoop-3.2.4"
@@ -13,7 +13,7 @@ declare HADOOP_NAME="hadoop-3.2.4"
 declare HADOOP_TEMPLATE_PATH="$PROJECT_ROOT_PATH/hadoop-template"
 
 # Define Hadoop home directory
-declare HADOOP_HOME_PATH="/opt/$HADOOP_NAME"
+declare HADOOP_HOME_PATH="$HOME/$HADOOP_NAME"
 
 # Define user download path
 declare DOWNLOAD_PATH="$HOME/Downloads"
@@ -21,7 +21,7 @@ declare DOWNLOAD_PATH="$HOME/Downloads"
 # Define SSH path
 declare SSH_PATH="$HOME/.ssh"
 
-# Define HSFS user directory path
+# Define HDFS user directory path
 declare HD_HDFS_USER_PATH="/user/$USER"
 
 # Define HDFS (Hadoop Distributed File System) command path
